@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block 'head' %}
+    <link rel="stylesheet" href="{% static 'clientes/css/clientes.css' %}">
+{% endblock %}
+
+{% block 'dashboard' %}
+    <div class="container">
+        <div class="row">
+            <div onclick="exibir_form('1')" class="col-md card-dashboard">
+                <p class="text-card">Adicionar clientes</p>
+            </div> 
+
+            <div onclick="exibir_form('2')" class="col-md card-dashboard">
+                <p class="text-card">Atualizar clientes</p>
+            </div> 
+        </div>
+
+        <!-- ======================== ADICIONAR CLIENTE ======================== -->
+        <div id="adicionar-cliente" class="adicionar-cliente">
+            <form action="{% url 'clientes' %}" method="POST">{% csrf_token %}
+
+                <!-- Nome e Sobrenome -->
+                <div class="row">
+                    <div class="col-md">
+                        <p>Nome:</p>
+                        <input type="text" class="form-control" placeholder="Primeiro nome" name="nome" value="{{nome}}">
+                    </div>
+                    <div class="col-md">
+                        <p>Sobrenome:</p>
+                        <input type="text" class="form-control" placeholder="Sobrenome" name="sobrenome" value="{{sobrenome}}">
+                    </div>
+                </div>
+                <br>
+
+                <!-- Email e CPF -->
+                <p>E-mail:</p>
+                <input type="email" class="form-control" placeholder="nome@email.com" name="email" value="{{email}}">
+                <br>
+                <div class="row">
+                    <div class="col-md">
+                        <p>CPF:</p>
+                        <input type="text" class="form-control" placeholder="___.___.___-__" name="cpf" value="{{cpf}}">
+                    </div>
+                    <div class="col-md">
+                        <p>Telefone:</p>
+                        <input type="text" class="form-control" placeholder="(xx) xxxxx-xxxx" name="telefone" value="{{telefone}}">
+                    </div>
+                </div>
+                <br>
+
+                <!-- Endereço -->
+                <hr style="background-color:gray;">
+                <h5>📍 Endereço</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <p>CEP:</p>
+                        <input type="text" class="form-control" placeholder="00000-000" name="cep" id="cep-add" onblur="buscar_cep('add')" value="{{cep}}">
+                    </div>
+                    <div class="col-md-7">
+                        <p>Rua:</p>
+                        <input type="text" class="form-control" placeholder="Rua" name="rua" id="rua-add" value="{{rua}}">
+                    </div>
+                    <div class="col-md-2">
+                        <p>Número:</p>
+                        <input type="text" class="form-control" placeholder="Nº" name="numero" value="{{numero}}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p>Bairro:</p>
+                        <input type="text" class="form-control" placeholder="Bairro" name="bairro" id="bairro-add" value="{{bairro}}">
+                    </div>
+                    <div class="col-md-5">
+                        <p>Cidade:</p>
+                        <input type="text" class="form-control" placeholder="Cidade" name="cidade" id="cidade-add" value="{{cidade}}">
+                    </div>
+                    <div class="col-md-3">
+                        <p>Estado:</p>
+                        <input type="text" class="form-control" placeholder="UF" name="estado" id="estado-add" maxlength="2" value="{{estado}}">
+                    </div>
+                </div>
+
+                <!-- Carros -->
+                <hr style="background-color:gray;">
+                <div class="add-carros">
+                    <h3>Carros</h3>
+                    <span class="btn-add-carros" onclick="add_carro()">+ Adicionar um carro</span>
+                    <div id="form-carro">
+                        {% for carro, placa, ano in carros %}
+                            <br>
+                            <div class="row">
+                                <div class="col-md">
+                                    <input type='text' placeholder='Modelo' class='form-control' name='carro' value="{{carro}}">
+                                </div>
+                                <div class="col-md">
+                                    <input type='text' placeholder='Placa' class='form-control' name='placa' value="{{placa}}">
+                                </div>
+                                <div class="col-md">
+                                    <input type='number' placeholder='Ano' class='form-control' name='ano' value="{{ano}}">
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <br>
+                <input type="submit" value="Cadastrar" class="btn-principal">
+
+            </form>
+        </div>
+
+
+        <!-- ======================== ATUALIZAR CLIENTE ======================== -->
+        <div id="att_cliente">
+            <p></p>
+            <select id="cliente-select" onchange="dados_cliente()" class="form-control">
+                {% for cliente in clientes %}
+                    <option value="{{cliente.id}}">{{cliente.nome}}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <hr>
+
+            <div id="form-att-cliente">
+                <input type="hidden" id="id">
+
+                <!-- Nome e Sobrenome -->
+                <div class="row">
+                    <div class="col-md">
+                        <p>Nome:</p>
+                        <input id="nome" type="text" class='form-control'>
+                    </div>
+                    <div class="col-md">
+                        <p>Sobrenome:</p>
+                        <input id="sobrenome" type="text" class='form-control'>
+                    </div>
+                </div>
+                <br>
+
+                <!-- Email, CPF e Telefone -->
+                <p>E-mail:</p>
+                <input id="email" type="text" class='form-control'>
+                <br>
+                <div class="row">
+                    <div class="col-md">
+                        <p>CPF:</p>
+                        <input id="cpf" type="text" class='form-control'>
+                    </div>
+                    <div class="col-md">
+                        <p>Telefone:</p>
+                        <input id="telefone" type="text" class='form-control'>
+                    </div>
+                </div>
+                <br>
+
+                <!-- Endereço -->
+                <hr style="background-color:gray;">
+                <h5>📍 Endereço</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <p>CEP:</p>
+                        <input id="cep" type="text" class="form-control" onblur="buscar_cep('att')">
+                    </div>
+                    <div class="col-md-7">
+                        <p>Rua:</p>
+                        <input id="rua" type="text" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <p>Número:</p>
+                        <input id="numero" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p>Bairro:</p>
+                        <input id="bairro" type="text" class="form-control">
+                    </div>
+                    <div class="col-md-5">
+                        <p>Cidade:</p>
+                        <input id="cidade" type="text" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <p>Estado:</p>
+                        <input id="estado" type="text" class="form-control" maxlength="2">
+                    </div>
+                </div>
+
+                <br>
+                <input onclick="update_cliente()" type="submit" value="Salvar" class="btn btn-success">
+
+                <!-- Carros -->
+                <hr style="background-color: gray;">
+                <h2>Carros</h2>
+                <div id="carros"></div>
+            </div>
+        </div>
+
+    </div>
+    <script src="{% static 'clientes/js/clientes.js' %}"></script>
+{% endblock %}

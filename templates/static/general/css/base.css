@@ -1,0 +1,298 @@
+/* ═══════════════════════════════════════════════════
+   América Lavacar — base.css
+   Layout global: sidebar, fundo, tipografia base
+═══════════════════════════════════════════════════ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Source Sans 3', sans-serif;
+}
+
+/* ── Fundo geral da página ─────────────────────── */
+.home-section {
+    position: relative;
+    min-height: 100vh;
+    top: 0;
+    left: 78px;
+    width: calc(100% - 78px);
+    transition: all 0.5s ease;
+    z-index: 2;
+
+    background: #f8f8fc !important;
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 38px,
+            rgba(178, 34, 52, 0.03) 38px,
+            rgba(178, 34, 52, 0.03) 40px
+        ) !important;
+    color: var(--text-dark) !important;
+}
+
+.sidebar.open ~ .home-section {
+    left: 250px;
+    width: calc(100% - 250px);
+}
+
+.home-section .text {
+    display: inline-block;
+    color: var(--main-color);
+    font-size: 25px;
+    font-weight: 500;
+    margin: 18px;
+}
+
+/* ── Sidebar — tema América ────────────────────── */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 78px;
+    background: var(--usa-blue) !important;
+    padding: 6px 14px;
+    z-index: 99;
+    transition: all 0.5s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--usa-red);
+}
+
+.sidebar.open {
+    width: 250px;
+}
+
+.sidebar .logo-details {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.sidebar .logo-details .logo_name {
+    color: #fff;
+    font-family: 'Oswald', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.5s ease;
+    letter-spacing: 1px;
+}
+
+.sidebar.open .logo-details .logo_name {
+    opacity: 1;
+}
+
+.sidebar .logo-details #btn {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    font-size: 23px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+
+.sidebar.open .logo-details #btn {
+    text-align: right;
+}
+
+.sidebar i {
+    color: #fff;
+    height: 60px;
+    min-width: 50px;
+    font-size: 28px;
+    text-align: center;
+    line-height: 60px;
+}
+
+.sidebar .nav-list {
+    margin-top: 20px;
+    flex: 1;
+}
+
+.sidebar li {
+    position: relative;
+    margin: 8px 0;
+    list-style: none;
+}
+
+.sidebar li .tooltip {
+    position: absolute;
+    top: -20px;
+    left: calc(100% + 15px);
+    z-index: 3;
+    background: #fff;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 400;
+    opacity: 0;
+    white-space: nowrap;
+    pointer-events: none;
+    transition: 0s;
+}
+
+.sidebar li:hover .tooltip {
+    opacity: 1;
+    pointer-events: auto;
+    transition: all 0.4s ease;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.sidebar.open li .tooltip {
+    display: none;
+}
+
+.sidebar li a {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    border-radius: 12px;
+    align-items: center;
+    text-decoration: none;
+    transition: all 0.4s ease;
+    background: rgba(255,255,255,0.08) !important;
+}
+
+.sidebar li a:hover {
+    background: rgba(255,255,255,0.18) !important;
+}
+
+.sidebar li a .links_name {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 400;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.4s;
+}
+
+.sidebar.open li a .links_name {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.sidebar li a:hover .links_name,
+.sidebar li a:hover i {
+    transition: all 0.5s ease;
+    color: white !important;
+}
+
+.sidebar li i {
+    height: 50px;
+    line-height: 50px;
+    font-size: 18px;
+    border-radius: 12px;
+}
+
+/* ══════════════════════════════════════════════════
+   Bandeira dos EUA — parte inferior da sidebar
+══════════════════════════════════════════════════ */
+.sidebar-flag {
+    padding: 14px 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: auto;
+}
+
+.flag-wrap {
+    width: 38px;
+    height: 26px;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transition: all 0.5s ease;
+    flex-shrink: 0;
+}
+
+.sidebar.open .flag-wrap {
+    width: 80px;
+    height: 52px;
+}
+
+.flag {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+}
+
+.canton {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 42%;
+    height: 54%;
+    background: #3C3B6E;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    padding: 1px;
+    z-index: 2;
+}
+
+.canton span {
+    color: white;
+    font-size: 4px;
+    line-height: 1;
+    flex: 0 0 33.33%;
+    text-align: center;
+}
+
+.sidebar.open .canton span {
+    font-size: 7px;
+}
+
+.stripes {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.s { flex: 1; }
+.s.r { background: #B22234; }
+.s.w { background: #FFFFFF; }
+
+.flag-label {
+    color: rgba(255,255,255,0.0);
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: all 0.4s ease;
+    font-weight: 400;
+}
+
+.sidebar.open .flag-label {
+    color: rgba(255,255,255,0.7);
+}
+
+/* ── Responsivo ────────────────────────────────── */
+@media (max-width: 420px) {
+    .sidebar li .tooltip {
+        display: none;
+    }
+}
