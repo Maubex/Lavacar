@@ -33,6 +33,8 @@ def clientes(request):
         carros = request.POST.getlist('carro')
         placas = request.POST.getlist('placa')
         anos   = request.POST.getlist('ano')
+        tipos  = request.POST.getlist('tipo')
+        cores  = request.POST.getlist('cor')
 
         # Verifica se CPF já existe
         if Cliente.objects.filter(cpf=cpf).exists():
@@ -73,9 +75,9 @@ def clientes(request):
         cliente.save()
 
         # Cria os carros vinculados
-        for carro, placa, ano in zip(carros, placas, anos):
-            if carro and placa:  # só salva se tiver modelo e placa preenchidos
-                Carro(carro=carro, placa=placa, ano=ano, cliente=cliente).save()
+        for carro, placa, ano, tipo, cor in zip(carros, placas, anos, tipos, cores):
+            if carro and placa:
+                Carro(carro=carro, placa=placa, ano=ano, tipo=tipo, cor=cor, cliente=cliente).save()
 
         return redirect(reverse('clientes'))
 
@@ -109,6 +111,8 @@ def update_carro(request, id):
     nome_carro = request.POST.get('carro')
     placa      = request.POST.get('placa')
     ano        = request.POST.get('ano')
+    tipo       = request.POST.get('tipo')
+    cor        = request.POST.get('cor')
 
     carro = get_object_or_404(Carro, id=id)
 
@@ -119,6 +123,8 @@ def update_carro(request, id):
     carro.carro = nome_carro
     carro.placa = placa
     carro.ano   = ano
+    carro.tipo  = tipo
+    carro.cor   = cor
     carro.save()
 
     return HttpResponse(id)
@@ -147,4 +153,4 @@ def update_cliente(request, id):
         cliente.save()
         return JsonResponse({'status': '200'})
     except Exception as e:
-        return JsonResponse({'status': '500', 'erro': str(e)})
+        return JsonResponse({'status': '500', 'erro': str(e)})  

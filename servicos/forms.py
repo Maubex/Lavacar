@@ -1,21 +1,24 @@
-from django.forms import ModelForm
-from .models import Servico, CategoriaManutencao
+from django import forms
+from .models import Lavagem, Estetica
 
-class FormServico(ModelForm):
+
+class LavagemForm(forms.ModelForm):
     class Meta:
-        model = Servico
-        exclude = ['finalizado', 'protocole']
+        model = Lavagem
+        fields = ['tipo', 'valor', 'observacao']
+        widgets = {
+            'tipo':       forms.Select(attrs={'class': 'form-control'}),
+            'valor':      forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 50.00'}),
+            'observacao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Observações...'}),
+        }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({'class': 'form-control'})
-            self.fields[field].widget.attrs.update({'placeholder': field})
-            
 
-        choices = list()
-        for i, j in self.fields['categoria_manutencao'].choices:
-            categoria = CategoriaManutencao.objects.get(titulo=j)
-            choices.append((i.value, categoria.get_titulo_display()))
-        
-        self.fields['categoria_manutencao'].choices = choices
+class EsteticaForm(forms.ModelForm):
+    class Meta:
+        model = Estetica
+        fields = ['tipo', 'valor', 'observacao']
+        widgets = {
+            'tipo':       forms.Select(attrs={'class': 'form-control'}),
+            'valor':      forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 350.00'}),
+            'observacao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Observações...'}),
+        }

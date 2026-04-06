@@ -1,64 +1,94 @@
 from django.db import models
-from clientes.models import Cliente
-from .choices import ChoicesCategoriaManutencao
-from datetime import datetime
-from secrets import token_hex, token_urlsafe
-from decimal import Decimal # Importante para cálculos precisos
+from clientes.models import Carro
 
-class CategoriaManutencao(models.Model):
-    # Dica: max_length=3 parece curto se o "titulo" for o nome da categoria. 
-    # Se for uma sigla, está ok!
-    titulo = models.CharField(max_length=50, choices=ChoicesCategoriaManutencao.choices)
-    preco = models.DecimalField(max_digits=8, decimal_places=2)
 
-    def __str__(self) -> str:
-        return self.get_titulo_display() # Mostra o nome legível do Choice
+class CategoriaVeiculo(models.Model):
+    """
+    Veículo Pequeno, Médio, SUV Grande, Grande
+    """
+    nome      = models.CharField(max_length=50, verbose_name='Nome')
+    descricao = models.TextField(blank=True, null=True, verbose_name='Exemplos de carros')
 
-class ServicoAdicional(models.Model):
-    titulo = models.CharField(max_length=50)
-    descricao = models.TextField()
-    # Mudado para DecimalField por segurança financeira
-    preco = models.DecimalField(max_digits=8, decimal_places=2)
+    def __str__(self):
+        return self.nome
 
-    def __str__(self) -> str:
-        return self.titulo
+    class Meta:
+        verbose_name = 'Categoria de Veículo'
+        verbose_name_plural = 'Categorias de Veículo'
 
-class Servico(models.Model):
-    titulo = models.CharField(max_length=30)
-    cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True)
-    categoria_manutencao = models.ManyToManyField(CategoriaManutencao)
-    servicos_adicionais = models.ManyToManyField(ServicoAdicional, blank=True)
-    
-    data_inicio = models.DateField(null=True, blank=True)
-    data_entrega = models.DateField(null=True, blank=True)
-    finalizado = models.BooleanField(default=False)
-    
-    # "protocole" corrigido para "protocolo" (opcional)
-    protocolo = models.CharField(max_length=52, null=True, blank=True)
-    identificador = models.CharField(max_length=24, null=True, blank=True)
 
-    def __str__(self) -> str:
-        return f"{self.titulo} - {self.cliente}"
+class TipoServico(models.Model):
+    """
+    Ducha, Lavar e Secar, Completa 1, Completa 2
+    """
+    nome      = models.CharField(max_length=50, verbose_name='Nome')
+    descricao = models.TextField(blank=True, null=True, verbose_name='Descrição')
+    ativo     = models.BooleanField(default=True, verbose_name='Ativo')
 
-    def save(self, *args, **kwargs):
-        if not self.protocolo:
-            self.protocolo = datetime.now().strftime("%d%m%Y%H%M%S") + token_hex(8)
+    def __str__(self):
+        return self.nome
 
-        if not self.identificador:
-            self.identificador = token_urlsafe(16)
+    class Meta:
+        verbose_name = 'Tipo de Serviço'
+        verbose_name_plural = 'Tipos de Serviço'
 
-        super(Servico, self).save(*args, **kwargs)
 
-    def preco_total(self):
-        # Soma categorias + serviços adicionais
-        total = Decimal('0.00')
-        
-        # Somar Categorias
-        for cat in self.categoria_manutencao.all():
-            total += cat.preco
-            
-        # Somar Adicionais
-        for add in self.servicos_adicionais.all():
-            total += add.preco
-            
-        return total
+class TabelaPreco(models.Model):
+    """
+    Relaciona tipo de serviço + categoria de veículo = preço
+    Ex: Ducha + Pequeno = R$25,00
+    """
+    tipo_servico      = models.ForeignKey(TipoServico,      on_delete=models.CASCADE, verbose_name='Serviço')
+    categoria_veiculo = models.ForeignKey(CategoriaVeiculo, on_delete=models.CASCADE, verbose_name='Categoria')
+    preco             = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Preço (R$)')
+
+    def __str__(self):
+        return f'{self.tipo_servico} — {self.categoria_veiculo} — R${self.preco}'
+
+    class Meta:
+        verbose_name = 'Tabela de Preço'
+        verbose_name_plural = 'Tabela de Preços'
+        unique_together = ['tipo_servico', 'categoria_veiculo']
+
+
+class Adicional(models.Model):
+    """
+    Serviços extras — ex: cera, pretinho, aromatizante
+    """
+    nome  = models.CharField(max_length=50, verbose_name='Nome')
+    preco = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Preço (R$)')
+    ativo = models.BooleanField(default=True, verbose_name='Ativo')
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = 'Adicional'
+        verbose_name_plural = 'Adicionais'
+
+
+class OrdemServico(models.Model):
+    """
+    Registro de um atendimento
+    """
+    STATUS_CHOICES = [
+        ('aguardando',   'Aguardando'),
+        ('em_andamento', 'Em Andamento'),
+        ('finalizado',   'Finalizado'),
+    ]
+
+    carro        = models.ForeignKey(Carro,       on_delete=models.CASCADE, related_name='ordens',    verbose_name='Carro')
+    tipo_servico = models.ForeignKey(TipoServico, on_delete=models.CASCADE,                            verbose_name='Serviço')
+    adicionais   = models.ManyToManyField(Adicional, blank=True,                                       verbose_name='Adicionais')
+    preco        = models.DecimalField(max_digits=8, decimal_places=2,                                 verbose_name='Preço (R$)')
+    status       = models.CharField(max_length=20, choices=STATUS_CHOICES, default='aguardando',       verbose_name='Status')
+    observacao   = models.TextField(blank=True, null=True,                                             verbose_name='Observação')
+    data         = models.DateTimeField(auto_now_add=True,                                             verbose_name='Data')
+
+    def __str__(self):
+        return f'{self.tipo_servico} — {self.carro.placa}'
+
+    class Meta:
+        verbose_name = 'Ordem de Serviço'
+        verbose_name_plural = 'Ordens de Serviço'
+        ordering = ['-data']

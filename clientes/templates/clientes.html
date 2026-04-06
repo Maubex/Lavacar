@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 {% load static %}
 
@@ -83,28 +84,53 @@
                 </div>
 
                 <!-- Carros -->
-                <hr style="background-color:gray;">
-                <div class="add-carros">
-                    <h3>Carros</h3>
-                    <span class="btn-add-carros" onclick="add_carro()">+ Adicionar um carro</span>
-                    <div id="form-carro">
-                        {% for carro, placa, ano in carros %}
-                            <br>
-                            <div class="row">
-                                <div class="col-md">
-                                    <input type='text' placeholder='Modelo' class='form-control' name='carro' value="{{carro}}">
-                                </div>
-                                <div class="col-md">
-                                    <input type='text' placeholder='Placa' class='form-control' name='placa' value="{{placa}}">
-                                </div>
-                                <div class="col-md">
-                                    <input type='number' placeholder='Ano' class='form-control' name='ano' value="{{ano}}">
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
+<hr style="background-color:gray;">
+<div class="add-carros">
+    <h3>🚗 Carros</h3>
+    <span class="btn-add-carros" onclick="add_carro()">+ Adicionar um carro</span>
+    <div id="form-carro">
+        <br>
+        <div class="row">
+            <div class="col-md">
+                <input type='text' placeholder='Modelo' class='form-control' name='carro'>
+            </div>
+            <div class="col-md">
+                <input type='text' placeholder='Placa' class='form-control' name='placa'>
+            </div>
+            <div class="col-md">
+                <input type='number' placeholder='Ano' class='form-control' name='ano'>
+            </div>
+            <div class="col-md">
+                <select class='form-control select2' name='tipo'>
+                    <option value=''>Tipo</option>
+                    <option value='hatch'>Hatch</option>
+                    <option value='sedan'>Sedan</option>
+                    <option value='suv'>SUV</option>
+                    <option value='caminhonete'>Caminhonete</option>
+                    <option value='moto'>Moto</option>
+                    <option value='van'>Van</option>
+                    <option value='pickup'>Pickup</option>
+                    <option value='esportivo'>Esportivo</option>
+                    <option value='outro'>Outro</option>
+                </select>
+            </div>
+            <div class="col-md">
+                <select class='form-control select2' name='cor'>
+                    <option value=''>Cor</option>
+                    <option value='preto'>Preto</option>
+                    <option value='branco'>Branco</option>
+                    <option value='prata'>Prata</option>
+                    <option value='cinza'>Cinza</option>
+                    <option value='vermelho'>Vermelho</option>
+                    <option value='azul'>Azul</option>
+                    <option value='verde'>Verde</option>
+                    <option value='amarelo'>Amarelo</option>
+                    <option value='outro'>Outro</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
                 <br>
                 <input type="submit" value="Cadastrar" class="btn-principal">
 
@@ -115,9 +141,9 @@
         <!-- ======================== ATUALIZAR CLIENTE ======================== -->
         <div id="att_cliente">
             <p></p>
-            <select id="cliente-select" onchange="dados_cliente()" class="form-control">
+            <select id="cliente-select" onchange="dados_cliente()" class="form-control select2">
                 {% for cliente in clientes %}
-                    <option value="{{cliente.id}}">{{cliente.nome}}</option>
+                    <option value="{{cliente.id}}">{{cliente.nome}} {{cliente.sobrenome}}</option>
                 {% endfor %}
             </select>
             <br>
@@ -192,11 +218,22 @@
 
                 <!-- Carros -->
                 <hr style="background-color: gray;">
-                <h2>Carros</h2>
+                <h2>🚗 Carros</h2>
                 <div id="carros"></div>
             </div>
         </div>
 
     </div>
+
+    <script>
+        // Ativa Select2 no select de clientes
+        $(document).ready(function(){
+            $('.select2').select2({
+                placeholder: 'Pesquisar...',
+                allowClear: true
+            })
+        })
+    </script>
+
     <script src="{% static 'clientes/js/clientes.js' %}"></script>
 {% endblock %}

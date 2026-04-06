@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'servicos/css/servicos.css' %}">
+{% endblock %}
+
+{% block 'dashboard' %}
+<div class="container">
+
+    <!-- ======================== BUSCA ======================== -->
+    <div class="row mb-3">
+        <div class="col-md card-dashboard" style="border-top-color: var(--usa-red);">
+            <p class="text-card">🔍 Atendimento</p>
+        </div>
+    </div>
+
+    <div class="busca-box mb-4">
+        <h5>Buscar por Placa, CPF ou Nº do Cliente</h5>
+        <div class="row">
+            <div class="col-md-8">
+                <input
+                    type="text"
+                    id="busca-input"
+                    class="form-control busca-input"
+                    placeholder="Ex: ABC1D23 ou 123.456.789-00"
+                    onkeypress="busca_enter(event)"
+                >
+            </div>
+            <div class="col-md-4">
+                <button onclick="buscar_atendimento()" class="btn-principal w-100">
+                    Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== RESULTADO DA BUSCA ======================== -->
+    <div id="resultado-busca"></div>
+
+    <!-- ======================== HISTÓRICO DE OS DO CARRO ======================== -->
+    <div id="historico-os" class="mt-4"></div>
+
+</div>
+
+<script>
+async function buscar_atendimento() {
+    const query = document.getElementById('busca-input').value.trim();
+    if (!query) return;
+
+    const response = await fetch("{% url 'servicos_buscar' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({ query })
+    });
+
+    const data = await response.json();
+
+    const resultado = document.getElementById('resultado-busca');
+    const historico = document.getElementById('historico-os');
+    resultado.innerHTML = '';
+    historico.innerHTML = '';
+
+    if (data.status !== '200') {
+        resultado.innerHTML = `<div class="alert alert-warning">Nenhum resultado encontrado.</div>`;
+        return;
+    }
+
+    if (data.tipo === 'placa') {
+        const carro = data.carro;
+        resultado.innerHTML = `
+            <div class="card p-3 mb-3">
+                <h5>${carro.placa} — ${carro.modelo}</h5>
+                <p>${carro.tipo} — ${carro.cor} — ${carro.cliente}</p>
+                <a href="/servicos/form_lavagem/${carro.id}/" class="btn btn-success btn-sm">Nova OS</a>
+            </div>
+        `;
+
+        if (carro.historico.length) {
+            historico.innerHTML = '<h5>📋 Histórico de OS</h5>';
+            carro.historico.forEach(os => {
+                historico.innerHTML += `
+                    <div class="card mb-2 p-2">
+                        <strong>${os.tipo}:</strong> ${os.descricao} — R$ ${os.valor} <br>
+                        <small>${os.data} | ${os.observacao}</small>
+                    </div>
+                `;
+            });
+        }
+
+    } else if (data.tipo === 'cliente') {
+        resultado.innerHTML = `<h5>Cliente: ${data.cliente.nome} ${data.cliente.sobrenome}</h5>`;
+        data.carros.forEach(c => {
+            resultado.innerHTML += `
+                <div class="card p-3 mb-2">
+                    ${c.placa} — ${c.modelo}
+                    <a href="/servicos/form_lavagem/${c.id}/" class="btn btn-success btn-sm float-end">Nova OS</a>
+                </div>
+            `;
+        });
+    }
+}
+
+function busca_enter(event) {
+    if (event.key === "Enter") {
+        buscar_atendimento();
+    }
+}
+</script>
+{% endblock %}

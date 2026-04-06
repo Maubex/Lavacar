@@ -1,0 +1,92 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block 'head' %}
+    <link rel="stylesheet" href="{% static 'servicos/css/servicos.css' %}">
+{% endblock %}
+
+{% block 'title' %}Cadastrar Carro{% endblock %}
+
+{% block 'dashboard' %}
+<div class="container" style="max-width: 620px;">
+
+    <div class="row">
+        <div class="col-md card-dashboard" style="border-top-color: var(--usa-red);">
+            <p class="text-card">🚗 Cadastro Rápido de Veículo</p>
+        </div>
+    </div>
+
+    {% if erro %}
+    <div style="background:#2a1a1a; border:1px solid #B22234; border-radius:8px;
+                padding:14px 18px; color:#e57373; margin-bottom:16px;">
+        ⚠️ {{ erro }}
+    </div>
+    {% endif %}
+
+    <form method="POST" class="busca-box">
+        {% csrf_token %}
+
+        <div class="row">
+            <!-- Placa -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label" style="color:#aaa; font-size:0.8rem; letter-spacing:1px;">PLACA</label>
+                <input type="text" name="placa" value="{{ placa }}"
+                       class="form-control busca-input"
+                       placeholder="Ex: ABC1D23" maxlength="8" required>
+            </div>
+            <!-- Modelo -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label" style="color:#aaa; font-size:0.8rem; letter-spacing:1px;">MODELO</label>
+                <input type="text" name="modelo"
+                       class="form-control busca-input"
+                       placeholder="Ex: Civic, Gol, HB20">
+            </div>
+            <!-- Cor -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label" style="color:#aaa; font-size:0.8rem; letter-spacing:1px;">COR</label>
+                <input type="text" name="cor"
+                       class="form-control busca-input"
+                       placeholder="Ex: Prata, Preto">
+            </div>
+            <!-- Ano -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label" style="color:#aaa; font-size:0.8rem; letter-spacing:1px;">ANO</label>
+                <input type="number" name="ano"
+                       class="form-control busca-input"
+                       placeholder="Ex: 2021" min="1950" max="2030">
+            </div>
+            <!-- Tipo -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label" style="color:#aaa; font-size:0.8rem; letter-spacing:1px;">TIPO</label>
+                <select name="tipo" class="form-control busca-input">
+                    <option value="carro">Carro</option>
+                    <option value="moto">Moto</option>
+                    <option value="caminhonete">Caminhonete</option>
+                    <option value="van">Van</option>
+                    <option value="caminhao">Caminhão</option>
+                </select>
+            </div>
+            <!-- Cliente -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label" style="color:#aaa; font-size:0.8rem; letter-spacing:1px;">CLIENTE (opcional)</label>
+                <select name="cliente_id" class="form-control busca-input">
+                    <option value="">— Anônimo —</option>
+                    {% for c in clientes %}
+                    <option value="{{ c.pk }}">{{ c.nome }} {{ c.sobrenome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-2">
+            <a href="{% url 'servicos_home' %}" class="btn-secundario w-50 text-center">
+                ← Voltar
+            </a>
+            <button type="submit" class="btn-principal w-50">
+                💾 Cadastrar e Atender
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

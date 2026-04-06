@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block 'head' %}
+    <link rel="stylesheet" href="{% static 'servicos/css/servicos.css' %}">
+{% endblock %}
+
+{% block 'dashboard' %}
+<div class="container py-4" style="max-width:680px">
+
+    {% if erro %}
+    <div class="alert alert-danger">{{ erro }}</div>
+    {% endif %}
+
+    <!-- Cabeçalho do carro -->
+    <div class="busca-box mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div style="font-size:2.5rem">🚗</div>
+            <div>
+                <h4 class="mb-0" style="font-family: Oswald, sans-serif; color: var(--usa-blue); letter-spacing: 3px;">
+                    {{ carro.placa }}
+                </h4>
+                <span class="carro-detalhe">
+                    {{ carro.carro }} &nbsp;•&nbsp; {{ carro.get_tipo_display }} &nbsp;•&nbsp; {{ carro.cor }} &nbsp;•&nbsp; {{ carro.cliente }}
+                </span>
+                {% if categoria %}
+                <br>
+                <small style="color: var(--usa-red); font-weight: 500;">
+                    📊 Categoria: {{ categoria.nome }}
+                </small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" id="form-os" onsubmit="return validarServico()">
+        {% csrf_token %}
+
+        <!-- SERVIÇOS -->
+        <h5 class="fw-bold mb-3">🧼 Selecione o Serviço</h5>
+        <div class="row g-3 mb-4" id="lista-servicos">
+            {% for s in servicos %}
+            <div class="col-12">
+                <label class="card p-3 w-100 servico-card"
+                       style="cursor:pointer; border: 1.5px solid var(--border); border-radius: 8px;"
+                       data-id="{{ s.pk }}"
+                       data-preco="{{ s.preco }}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <input type="radio" name="servico_id" value="{{ s.pk }}"
+                                   class="form-check-input me-2 radio-servico" required>
+                            <span class="fw-semibold">{{ s.nome }}</span>
+                            {% if s.descricao %}
+                            <small class="text-muted ms-2">{{ s.descricao }}</small>
+                            {% endif %}
+                        </div>
+                        <span class="fw-bold preco-servico" style="color: var(--usa-blue);">
+                            {% if s.preco %}R$ {{ s.preco }}{% else %}—{% endif %}
+                        </span>
+                    </div>
+                </label>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    Nenhum serviço cadastrado.
+                    <a href="/admin/servicos/tiposervico/add/">Cadastrar agora</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- ADICIONAIS -->
+        {% if adicionais %}
+        <h5 class="fw-bold mb-3">⭐ Adicionais</h5>
+        <div class="row g-2 mb-4">
+            {% for ad in adicionais %}
+            <div class="col-6">
+                <label class="card p-3 w-100 adicional-card"
+                       style="cursor:pointer; border: 1px solid var(--border); border-radius: 8px;"
+                       data-preco="{{ ad.preco }}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <input type="checkbox" name="adicionais" value="{{ ad.pk }}"
+                                   class="form-check-input me-2 check-adicional">
+                            <span>{{ ad.nome }}</span>
+                        </div>
+                        <span style="color: var(--usa-blue);" class="fw-semibold">
+                            + R$ {{ ad.preco|floatformat:2 }}
+                        </span>
+                    </div>
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- OBSERVAÇÃO -->
+        <div class="mb-4">
+            <p>📝 Observação</p>
+            <textarea name="observacao" class="form-control" rows="2"
+                      placeholder="Ex: cliente pediu atenção especial no painel..."></textarea>
+        </div>
+
+        <!-- RESUMO TOTAL -->
+        <div class="resultado-box mb-4" style="background: var(--usa-blue); color: white;">
+            <div class="d-flex justify-content-between align-items-center">
+                <span style="font-family: Oswald, sans-serif; font-size: 18px;">Total</span>
+                <span style="font-family: Oswald, sans-serif; font-size: 32px; font-weight: 600;"
+                      id="total-valor">R$ 0,00</span>
+            </div>
+            <div id="resumo-itens" style="font-size: 13px; opacity: 0.7; margin-top: 8px;"></div>
+        </div>
+
+        <!-- AÇÕES -->
+        <div class="row">
+            <div class="col-md-6">
+                <a href="{% url 'servicos_home' %}" class="btn-secundario w-100 text-center d-block">
+                    ← Voltar
+                </a>
+            </div>
+            <div class="col-md-6">
+                <button type="submit" class="btn-principal w-100">
+                    ✅ Confirmar OS
+                </button>
+            </div>
+        </div>
+
+        <input type="hidden" name="preco" id="preco-total">
+    </form>
+</div>
+
+<script>
+    function atualizarTotal() {
+        let total = 0;
+        let itens = [];
+
+        // Serviço selecionado — pega o preço do data-preco do card
+        const radio = document.querySelector('.radio-servico:checked');
+        if (radio) {
+            const card  = radio.closest('.servico-card');
+            const preco = parseFloat(card.dataset.preco || 0);
+            total += preco;
+            const nome = card.querySelector('.fw-semibold').textContent.trim();
+            itens.push(nome + ' — R$ ' + preco.toFixed(2));
+        }
+
+        // Adicionais marcados
+        document.querySelectorAll('.check-adicional:checked').forEach(cb => {
+            const card  = cb.closest('.adicional-card');
+            const preco = parseFloat(card.dataset.preco || 0);
+            total += preco;
+            const nome = cb.nextElementSibling.textContent.trim();
+            itens.push(nome + ' — R$ ' + preco.toFixed(2));
+        });
+
+        document.getElementById('total-valor').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+        document.getElementById('resumo-itens').innerHTML  = itens.map(i => '✓ ' + i).join('<br>');
+        document.getElementById('preco-total').value       = total.toFixed(2);
+    }
+
+    // Destaque visual no card selecionado
+    document.querySelectorAll('.servico-card').forEach(card => {
+        card.addEventListener('click', () => {
+            document.querySelectorAll('.servico-card').forEach(c => {
+                c.style.borderColor = 'var(--border)';
+                c.style.background  = '';
+            });
+            card.style.borderColor = 'var(--usa-red)';
+            card.style.background  = 'var(--usa-red-light)';
+            atualizarTotal();
+        });
+    });
+
+    // Clique em card adicional
+    document.querySelectorAll('.adicional-card').forEach(card => {
+        card.addEventListener('click', e => {
+            const checkbox = card.querySelector('.check-adicional');
+            if (e.target !== checkbox) checkbox.checked = !checkbox.checked;
+            card.style.borderColor = checkbox.checked ? 'var(--usa-blue)' : 'var(--border)';
+            atualizarTotal();
+        });
+    });
+
+    // Valida serviço antes do envio
+    function validarServico() {
+        const selecionado = document.querySelector('.radio-servico:checked');
+        if (!selecionado) {
+            alert('Por favor, selecione um serviço antes de confirmar.');
+            return false;
+        }
+        return true;
+    }
+</script>
+{% endblock %}

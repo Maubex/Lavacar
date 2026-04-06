@@ -1,0 +1,231 @@
+/* ═══════════════════════════════════════════════════
+   América Lavacar — clientes.css
+   Estilos específicos da página de Clientes
+═══════════════════════════════════════════════════ */
+
+/* ── Container principal ───────────────────────── */
+.container {
+    padding: 32px 24px;
+}
+
+/* ── Cards do dashboard (Adicionar / Atualizar) ── */
+.card-dashboard {
+    background: var(--usa-white);
+    border: 1.5px solid var(--border);
+    border-top: 4px solid var(--usa-red);
+    border-radius: 12px;
+    margin: 20px 8px 0 8px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.card-dashboard::before {
+    content: '★ ★ ★';
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: var(--usa-blue);
+    opacity: 0.2;
+}
+
+.card-dashboard:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-top-color: var(--usa-blue);
+}
+
+.text-card {
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* ── Formulário Adicionar Cliente ──────────────── */
+.adicionar-cliente {
+    display: none;
+    margin-top: 28px;
+    background: var(--usa-white);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--usa-red);
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ── Formulário Atualizar Cliente ──────────────── */
+#att_cliente {
+    display: none;
+    margin-top: 28px;
+    background: var(--usa-white);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--usa-blue);
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+}
+
+#form-att-cliente {
+    display: none;
+    margin-top: 16px;
+}
+
+/* ── Labels e textos ───────────────────────────── */
+.container p {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    margin-top: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.container h2,
+.container h3,
+.container h5 {
+    font-family: 'Oswald', sans-serif;
+    color: var(--text-dark);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.container h5 {
+    font-size: 15px;
+    color: var(--usa-blue);
+    margin: 8px 0 4px;
+}
+
+/* ── Inputs ────────────────────────────────────── */
+.form-control {
+    background: #fafafa !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    color: var(--text-dark) !important;
+    font-family: 'Source Sans 3', sans-serif !important;
+    font-size: 14px !important;
+    padding: 9px 14px !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.form-control:focus {
+    background: #fff !important;
+    border-color: var(--usa-red) !important;
+    box-shadow: 0 0 0 3px rgba(178, 34, 52, 0.08) !important;
+    outline: none !important;
+}
+
+.form-control::placeholder {
+    color: #b0b7c3 !important;
+    font-size: 13px !important;
+}
+
+select.form-control {
+    background-color: #fafafa !important;
+    cursor: pointer;
+}
+
+/* ── Divisores ─────────────────────────────────── */
+.container hr {
+    border: none;
+    border-top: 1px dashed rgba(60, 59, 110, 0.15);
+    margin: 20px 0;
+}
+
+/* ── Seção de carros ───────────────────────────── */
+.add-carros {
+    margin-top: 8px;
+}
+
+.add-carros h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: var(--text-dark);
+}
+
+/* ── Botão adicionar carro ─────────────────────── */
+.btn-add-carros {
+    display: inline-block;
+    background: var(--usa-blue-light);
+    color: var(--usa-blue);
+    border: 1px solid rgba(60, 59, 110, 0.2);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.3px;
+}
+
+.btn-add-carros:hover {
+    background: var(--usa-blue);
+    color: white;
+}
+
+/* ── Botão principal (Cadastrar) ───────────────── */
+.btn-principal {
+    display: inline-block;
+    background: var(--usa-red);
+    color: white !important;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 32px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+}
+
+.btn-principal:hover {
+    background: var(--usa-blue);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(178, 34, 52, 0.3);
+}
+
+/* ── Botões Bootstrap override ─────────────────── */
+.btn-success {
+    background-color: var(--usa-blue) !important;
+    border-color: var(--usa-blue) !important;
+    font-family: 'Oswald', sans-serif !important;
+    letter-spacing: 0.5px !important;
+    border-radius: 8px !important;
+    padding: 8px 24px !important;
+}
+
+.btn-success:hover {
+    background-color: #2d2c5a !important;
+    border-color: #2d2c5a !important;
+}
+
+.btn-danger {
+    border-radius: 8px !important;
+    font-family: 'Oswald', sans-serif !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* ── Responsivo ────────────────────────────────── */
+@media (max-width: 768px) {
+    .adicionar-cliente,
+    #att_cliente {
+        padding: 20px;
+    }
+
+    .card-dashboard {
+        margin: 12px 4px 0 4px;
+    }
+}

@@ -1,0 +1,73 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block 'head' %}
+    <link rel="stylesheet" href="{% static 'servicos/css/servicos.css' %}">
+{% endblock %}
+
+{% block 'title' %}Estética — {{ carro.placa }}{% endblock %}
+
+{% block 'dashboard' %}
+<div class="container" style="max-width: 580px;">
+
+    <div class="row">
+        <div class="col-md card-dashboard" style="border-top-color: var(--usa-red);">
+            <p class="text-card">✨ Registrar Estética</p>
+        </div>
+    </div>
+
+    <!-- Carro -->
+    <div style="background:#1e1e2e; border-left:4px solid var(--usa-red);
+                border-radius:8px; padding:14px 18px; margin-bottom:20px;
+                display:flex; align-items:center; gap:14px;">
+        <div style="font-size:2rem;">🚗</div>
+        <div>
+            <div style="font-size:1.4rem; font-weight:bold; color:#fff;
+                        letter-spacing:2px;">{{ carro.placa }}</div>
+            <div style="font-size:0.85rem; color:#aaa;">
+                {{ carro.modelo }}
+                {% if carro.cor %} · {{ carro.cor }}{% endif %}
+                · {{ carro.cliente }}
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" class="busca-box">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label" style="color:#aaa; font-size:0.8rem; letter-spacing:1px;">TIPO DE ESTÉTICA</label>
+            <select name="tipo" class="form-control busca-input" required>
+                <option value="polimento">Polimento</option>
+                <option value="vitrificacao">Vitrificação</option>
+                <option value="higienizacao">Higienização Interna</option>
+                <option value="cristalizacao">Cristalização</option>
+                <option value="peliculas">Películas</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" style="color:#aaa; font-size:0.8rem; letter-spacing:1px;">VALOR (R$)</label>
+            <input type="number" name="valor" step="0.01" min="0"
+                   class="form-control busca-input"
+                   placeholder="Ex: 150.00" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label" style="color:#aaa; font-size:0.8rem; letter-spacing:1px;">OBSERVAÇÃO</label>
+            <textarea name="observacao" class="form-control busca-input"
+                      rows="3" placeholder="Ex: foco no teto e capô..."></textarea>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'servicos_home' %}" class="btn-secundario w-50 text-center">
+                ← Voltar
+            </a>
+            <button type="submit" class="btn-principal w-50">
+                ✅ Registrar Estética
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

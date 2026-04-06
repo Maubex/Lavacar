@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="{% static 'general/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/general.css' %}">
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     {% block 'head' %}{% endblock %}
 
     <title>{% block 'title' %}{% endblock %}</title>
@@ -38,8 +42,8 @@
             <span class="tooltip">Clientes</span>
           </li>
           <li>
-            <a href="#">
-              <i class='bx bx-chat'></i>
+            <a href="{% url 'servicos_home' %}">
+              <i class='bx bx-car'></i>
               <span class="links_name">Serviços</span>
             </a>
             <span class="tooltip">Serviços</span>
@@ -64,13 +68,11 @@
         <div class="sidebar-flag">
             <div class="flag-wrap">
                 <div class="flag">
-                    <!-- Canton azul com estrelas -->
                     <div class="canton">
                         <span>★</span><span>★</span><span>★</span>
                         <span>★</span><span>★</span><span>★</span>
                         <span>★</span><span>★</span><span>★</span>
                     </div>
-                    <!-- Listras -->
                     <div class="stripes">
                         <div class="s r"></div>
                         <div class="s w"></div>
@@ -85,17 +87,22 @@
             <span class="flag-label">América Lavacar</span>
         </div>
 
-      </div>
+    </div>
       
-      <section class="home-section">
-          {% block 'dashboard'%}
-          {% endblock %}
-      </section>
+    <section class="home-section">
+        {% block 'dashboard'%}
+        {% endblock %}
+    </section>
 
     {% block 'body' %}
     {% endblock %}
+
     <script src="{% static 'general/js/base.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
   </body>
 </html>
