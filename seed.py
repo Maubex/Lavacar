@@ -7,15 +7,23 @@ django.setup()
 from django.contrib.auth.models import User
 from servicos.models import TipoServico, CategoriaVeiculo, TabelaPreco
 
-# 1. CRIAR USUÁRIO ADMIN (O que faltava para você logar!)
+# 1. CRIAR USUÁRIO ADMIN (Versão automática para o Railway não travar)
 def criar_admin():
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@email.com', 'admin123')
-        print('👤 Usuário admin criado: admin / admin123')
+    username = 'admin'
+    password = 'admin123'
+    email = 'admin@email.com'
+    
+    if not User.objects.filter(username=username).exists():
+        # Usamos create_user para não pedir interação no terminal
+        user = User.objects.create_user(username, email, password)
+        user.is_superuser = True  # Define como superusuário
+        user.is_staff = True      # Permite acessar o painel /admin
+        user.save()
+        print(f'👤 Usuário admin criado com sucesso: {username} / {password}')
     else:
-        print('👤 Usuário admin já existe.')
+        print(f'👤 Usuário admin "{username}" já existe.')
 
-# 2. CRIAR CATEGORIAS E SERVIÇOS
+# 2. CRIAR CATEGORIAS E SERVIÇOS (Seu código original mantido)
 def popular_dados():
     # Categorias
     categorias = ['Veículo Pequeno', 'Veículo Médio', 'Veículo SUV Grande', 'Veículo Grande']
@@ -40,13 +48,17 @@ def popular_dados():
     ]
 
     for servico_nome, categoria_nome, valor in precos:
-        servico = TipoServico.objects.get(nome=servico_nome)
-        categoria = CategoriaVeiculo.objects.get(nome=categoria_nome)
-        TabelaPreco.objects.get_or_create(
-            tipo_servico=servico,
-            categoria_veiculo=categoria,
-            defaults={'preco': valor}
-        )
+        try:
+            servico = TipoServico.objects.get(nome=servico_nome)
+            categoria = CategoriaVeiculo.objects.get(nome=categoria_nome)
+            TabelaPreco.objects.get_or_create(
+                tipo_servico=servico,
+                categoria_veiculo=categoria,
+                defaults={'preco': valor}
+            )
+        except Exception as e:
+            print(f"Erro ao inserir preço para {servico_nome}: {e}")
+
     print('✅ Dados de serviços e preços importados!')
 
 if __name__ == "__main__":
