@@ -1,3 +1,4 @@
+# Versao Final Estavel
 Django==4.2.29
 gunicorn==23.0.0
 whitenoise==6.11.0
