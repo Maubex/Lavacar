@@ -1,1 +1,1 @@
-web: gunicorn mecajato.wsgi
+web: python manage.py migrate && gunicorn mecajato.wsgi
