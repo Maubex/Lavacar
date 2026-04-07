@@ -103,3 +103,12 @@ MEDIA_URL  = '/media/'
 
 # ── Chave primária padrão ─────────────────────────
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+
+# Permite que o Django aceite o endereço do Railway
+CSRF_TRUSTED_ORIGINS = [
+    'https://lavacar-production.up.railway.app',
+    'https://*.railway.app'
+]
