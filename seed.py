@@ -13,15 +13,19 @@ def criar_admin():
     password = 'admin123'
     email = 'admin@email.com'
     
-    if not User.objects.filter(username=username).exists():
-        # Usamos create_user para não pedir interação no terminal
-        user = User.objects.create_user(username, email, password)
-        user.is_superuser = True  # Define como superusuário
-        user.is_staff = True      # Permite acessar o painel /admin
-        user.save()
-        print(f'👤 Usuário admin criado com sucesso: {username} / {password}')
+    # Busca o usuário ou cria um novo se não existir
+    user, created = User.objects.get_or_create(username=username, defaults={'email': email})
+    
+    # Define/Reseta a senha e garante os poderes de admin
+    user.set_password(password) # Isso criptografa a senha corretamente
+    user.is_superuser = True
+    user.is_staff = True
+    user.save()
+
+    if created:
+        print(f'👤 Usuário admin CRIADO: {username} / {password}')
     else:
-        print(f'👤 Usuário admin "{username}" já existe.')
+        print(f'👤 Senha do admin RESETADA: {username} / {password}')
 
 # 2. CRIAR CATEGORIAS E SERVIÇOS (Seu código original mantido)
 def popular_dados():
