@@ -11,7 +11,7 @@ from servicos.models import TipoServico, CategoriaVeiculo, TabelaPreco
 def criar_admin():
     username = 'admin'
     password = 'admin123'
-    email = 'admin@email.com'
+    email = 'renan.buosi@hotmail.com'
     
     # Busca o usuário ou cria um novo se não existir
     user, created = User.objects.get_or_create(username=username, defaults={'email': email})
