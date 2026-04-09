@@ -1,2 +1,2 @@
-release: python manage.py migrate --noinput && python manage.py createsuperuser --noinput
-web: python manage.py migrate --noinput && gunicorn mecajato.wsgi
+release: python manage.py migrate --noinput && python seed.py
+web: gunicorn mecajato.wsgi
