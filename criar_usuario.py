@@ -1,7 +1,12 @@
 import os
 import django
+import sys
 
-# Define as configurações do Django
+# Garante que o log apareça imediatamente no Railway
+sys.stdout.reconfigure(line_buffering=True)
+
+print("--- INICIANDO SCRIPT DE CRIACAO DE USUARIO ---")
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mecajato.settings')
 
 try:
@@ -10,22 +15,21 @@ try:
     
     username = 'master'
     password = 'master123'
-    email = 'master@email.com'
-
-    # get_or_create evita erros se o usuário já existir
+    
+    print(f"Buscando usuario: {username}...")
     user, created = User.objects.get_or_create(username=username)
     
     user.set_password(password)
-    user.email = email
     user.is_staff = True
     user.is_superuser = True
     user.save()
 
     if created:
-        print(f"✅ SUCESSO: Usuario '{username}' criado do zero!")
+        print("✅ SUCESSO: Usuario MASTER criado do zero!")
     else:
-        print(f"✅ SUCESSO: Dados do usuario '{username}' atualizados!")
+        print("✅ SUCESSO: Senha do MASTER atualizada!")
 
 except Exception as e:
-    # Isso vai imprimir o erro exato no log do Railway se algo falhar
-    print(f"❌ ERRO CRÍTICO NO SCRIPT: {str(e)}")
+    print(f"❌ ERRO NO DJANGO SETUP OU SCRIPT: {str(e)}")
+
+print("--- FIM DO SCRIPT ---")
