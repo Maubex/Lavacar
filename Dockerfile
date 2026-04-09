@@ -11,4 +11,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # O comando abaixo é a "alma" do seu deploy agora:
-CMD python manage.py migrate --noinput && python criar_usuario.py && gunicorn mecajato.wsgi --bind 0.0.0.0:$PORT
+CMD python manage.py migrate --noinput; python criar_usuario.py; gunicorn mecajato.wsgi --bind 0.0.0.0:$PORT --log-file -
