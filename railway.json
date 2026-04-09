@@ -1,9 +1,0 @@
-{
-  "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "python manage.py migrate --noinput && python criar_usuario.py && gunicorn mecajato.wsgi --bind 0.0.0.0:$PORT --log-file -",
-    "restartPolicyType": "ON_FAILURE"
-  }
-}
