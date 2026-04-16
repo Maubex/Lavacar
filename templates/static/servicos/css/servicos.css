@@ -1,0 +1,240 @@
+/* ═══════════════════════════════════════════════════
+   América Lavacar — servicos.css
+   Estilos específicos da página de Serviços
+═══════════════════════════════════════════════════ */
+
+/* ── Caixa de busca ────────────────────────────── */
+.busca-box {
+    margin-top: 28px;
+    background: var(--usa-white);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--usa-red);
+    padding: 28px 32px;
+    box-shadow: var(--shadow-sm);
+}
+
+.busca-box h5 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+    color: var(--usa-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+}
+
+.busca-input {
+    font-size: 18px !important;
+    padding: 12px 18px !important;
+    letter-spacing: 1px;
+}
+
+/* ── Caixa de resultado ────────────────────────── */
+.resultado-box {
+    margin-top: 24px;
+    background: var(--usa-white);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--usa-blue);
+    padding: 28px 32px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ── Não encontrado ────────────────────────────── */
+.nao-encontrado {
+    border-left-color: var(--usa-red);
+    text-align: center;
+}
+
+.nao-encontrado p {
+    font-size: 16px !important;
+    color: var(--text-dark) !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+
+/* ── Info do carro ─────────────────────────────── */
+.carro-info {
+    margin-bottom: 8px;
+}
+
+.carro-placa {
+    font-family: 'Oswald', sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--usa-blue);
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+}
+
+.carro-detalhe {
+    font-size: 14px !important;
+    color: var(--text-muted) !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    margin-top: 0 !important;
+}
+
+.carro-cliente {
+    font-size: 14px !important;
+    color: var(--text-dark) !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+
+/* ── Botões de serviço ─────────────────────────── */
+.btn-servico {
+    display: block;
+    text-align: center;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-decoration: none !important;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+}
+
+.btn-lavagem {
+    background: var(--usa-blue);
+    color: white !important;
+}
+
+.btn-lavagem:hover {
+    background: #2d2c5a;
+    transform: translateY(-1px);
+}
+
+.btn-estetica {
+    background: var(--usa-red);
+    color: white !important;
+}
+
+.btn-estetica:hover {
+    background: #8c1a27;
+    transform: translateY(-1px);
+}
+
+/* ── Botão secundário (cadastrar cliente) ──────── */
+.btn-secundario {
+    display: inline-block;
+    background: var(--usa-blue-light);
+    color: var(--usa-blue) !important;
+    border: 1px solid rgba(60, 59, 110, 0.2);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.btn-secundario:hover {
+    background: var(--usa-blue);
+    color: white !important;
+}
+
+/* ── Tabela de histórico ───────────────────────── */
+.historico-table {
+    margin-top: 12px;
+}
+
+.historico-table thead th {
+    font-family: 'Oswald', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+    font-weight: 500;
+}
+
+.historico-table tbody td {
+    font-size: 14px;
+    color: var(--text-dark);
+    vertical-align: middle;
+    border-top: 1px solid var(--border);
+}
+
+/* ── Badges de tipo de serviço ─────────────────── */
+.badge-lavagem {
+    background: var(--usa-blue-light);
+    color: var(--usa-blue);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-estetica {
+    background: var(--usa-red-light);
+    color: var(--usa-red);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ── Cards de seleção de carro ─────────────────── */
+.card-carro-select {
+    background: var(--usa-white);
+    border: 1.5px solid var(--border);
+    border-top: 4px solid var(--usa-blue);
+    border-radius: 12px;
+    margin: 8px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.card-carro-select:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-top-color: var(--usa-red);
+}
+
+.card-carro-select small {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ── Responsivo ────────────────────────────────── */
+@media (max-width: 768px) {
+    .busca-box,
+    .resultado-box {
+        padding: 20px;
+    }
+
+    .carro-placa {
+        font-size: 24px;
+    }
+
+    .btn-servico {
+        margin-bottom: 8px;
+    }
+}
+
+/* ── Badge OS ──────────────────────────────────── */
+.badge-os {
+    background: var(--usa-blue-light);
+    color: var(--usa-blue);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ── Badge Status ──────────────────────────────── */
+.badge-status {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}

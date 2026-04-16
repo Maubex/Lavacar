@@ -229,3 +229,44 @@ select.form-control {
         margin: 12px 4px 0 4px;
     }
 }
+
+.alert-danger {
+    background-color: #fff5f5;
+    border: 1px solid var(--usa-red);
+    color: var(--usa-red);
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(178, 34, 52, 0.1);
+}
+
+/* ── Forçar Placas em Maiúsculo visualmente ── */
+.placa-mask {
+    text-transform: uppercase;
+    font-family: 'monospace', sans-serif; /* Dá um ar de placa real */
+    font-weight: 700 !important;
+    letter-spacing: 1px;
+}
+/* ── Ajuste Select2 para combinar com seu CSS ── */
+.select2-container--default .select2-selection--single {
+    background-color: #fafafa !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    height: 40px !important;
+    padding-top: 5px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px !important;
+}
+
+/* ── Efeito de foco para campos de máscara ── */
+.cpf-mask:focus, .tel-mask:focus {
+    border-color: var(--usa-blue) !important;
+    box-shadow: 0 0 0 3px rgba(60, 59, 110, 0.08) !important;
+}

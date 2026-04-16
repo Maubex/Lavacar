@@ -2,6 +2,7 @@ from django.db import models
 from clientes.models import Carro
 
 
+
 class CategoriaVeiculo(models.Model):
     """
     Veículo Pequeno, Médio, SUV Grande, Grande

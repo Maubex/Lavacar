@@ -7,7 +7,7 @@ function add_carro(){
             <input type='text' placeholder='Modelo (Ex: Honda Civic)' class='form-control' name='carro'>
         </div>
         <div class='col-md'>
-            <input type='text' placeholder='Placa (ABC1D23)' class='form-control' name='placa'>
+            <input type='text' placeholder='Placa (ABC1D23)' class='form-control placa-mask' name='placa' style='text-transform: uppercase;'>
         </div>
         <div class='col-md'>
             <input type='number' placeholder='Ano' class='form-control' name='ano'>
@@ -43,6 +43,9 @@ function add_carro(){
     </div>`
 
     container.innerHTML += html
+
+    // Ajuste: Aplica as máscaras nos novos campos
+    $('.placa-mask').mask('AAA0A00');
 
     // Ativa o Select2 nos novos selects
     $('.select2').select2({
@@ -123,6 +126,11 @@ function dados_cliente(){
         document.getElementById('cidade').value = data['cliente']['cidade'] || ''
         document.getElementById('estado').value = data['cliente']['estado'] || ''
 
+        // Ajuste: Aplica máscaras nos campos carregados
+        $('.cpf-mask').mask('000.000.000-00');
+        $('.tel-mask').mask('(00) 00000-0000');
+        $('.cep-mask').mask('00000-000');
+
         // Carros — limpa antes de renderizar para não duplicar
         div_carros = document.getElementById('carros')
         div_carros.innerHTML = ''
@@ -135,7 +143,7 @@ function dados_cliente(){
                             <input class='form-control' name='carro' type='text' value='${data['carros'][i]['fields']['carro']}'>
                         </div>
                         <div class='col-md'>
-                            <input class='form-control' name='placa' type='text' value='${data['carros'][i]['fields']['placa']}'>
+                            <input class='form-control placa-mask' name='placa' type='text' value='${data['carros'][i]['fields']['placa']}' style='text-transform: uppercase;'>
                         </div>
                         <div class='col-md'>
                             <input class='form-control' type='number' name='ano' value='${data['carros'][i]['fields']['ano']}'>
@@ -180,6 +188,9 @@ function dados_cliente(){
                 </div><br>`
         }
 
+        // Ajuste: Aplica máscara nas placas dos carros carregados
+        $('.placa-mask').mask('AAA0A00');
+
         // Ativa Select2 nos selects dos carros
         $('.select2').select2({
             placeholder: 'Pesquisar...',
@@ -194,15 +205,15 @@ function update_cliente(){
     const id         = document.getElementById('id').value
     const csrf_token = document.querySelector('[name=csrfmiddlewaretoken]').value
 
-    // Dados pessoais
+    // Ajuste: Captura os dados limpando as máscaras antes de enviar para o Django
     const nome      = document.getElementById('nome').value
     const sobrenome = document.getElementById('sobrenome').value
     const email     = document.getElementById('email').value
-    const cpf       = document.getElementById('cpf').value
-    const telefone  = document.getElementById('telefone').value
+    const cpf       = document.getElementById('cpf').value.replace(/\D/g, '')
+    const telefone  = document.getElementById('telefone').value.replace(/\D/g, '')
 
     // Endereço
-    const cep    = document.getElementById('cep').value
+    const cep    = document.getElementById('cep').value.replace(/\D/g, '')
     const rua    = document.getElementById('rua').value
     const numero = document.getElementById('numero').value
     const bairro = document.getElementById('bairro').value
@@ -224,9 +235,26 @@ function update_cliente(){
         return result.json()
     }).then(function(data){
         if(data['status'] == '200'){
-            console.log('Dados alterados com sucesso')
+            alert('Dados alterados com sucesso')
+            location.reload() // Ajuste: recarrega para atualizar a tela
         }else{
-            console.log('Ocorreu algum erro')
+            // Ajuste: exibe o erro real vindo da View do Django
+            alert('Erro: ' + data['erro'])
         }
     })
 }
+
+// Inicialização das máscaras ao carregar a página
+$(document).ready(function(){
+    $('.cpf-mask').mask('000.000.000-00');
+    $('.tel-mask').mask('(00) 00000-0000');
+    $('.cep-mask').mask('00000-000');
+    $('.placa-mask').mask('AAA0A00');
+
+    // Ajuste: Limpa máscaras no formulário de cadastro antes de enviar
+    $('#adicionar-cliente form').on('submit', function() {
+        $('.cpf-mask, .tel-mask, .cep-mask').each(function() {
+            $(this).val($(this).val().replace(/\D/g, ''));
+        });
+    });
+});

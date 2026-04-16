@@ -1,20 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Source+Sans+3:wght@300;400;500&display=swap');
 
 :root {
-    --main-color:    #ac4147;
-    --dark-color:    #3C3B6E;  /* ← atualiza para o azul América */
-    --light-color:   #ffc27f;
-    --contrast-color:#f88863;
+    --main-color:         #ac4147;
+    --dark-color:         #3C3B6E;
+    --light-color:        #ffc27f;
+    --contrast-color:     #f88863;
     --differential-color: #ffffff;
 
-    /* Novas variáveis América */
-    --usa-red:        #B22234;
-    --usa-blue:       #3C3B6E;
-    --usa-red-light:  #f5e6e8;
-    --usa-blue-light: #e8e8f5;
-    --text-dark:      #1a1a2e;
-    --text-muted:     #6b7280;
-    --border:         rgba(0,0,0,0.08);
-    --shadow-sm:      0 2px 8px rgba(0,0,0,0.06);
-    --shadow-md:      0 4px 20px rgba(0,0,0,0.10);
+    --usa-red:            #B22234;
+    --usa-blue:           #3C3B6E;
+    --usa-white:          #FFFFFF;
+    --usa-red-light:      #f5e6e8;
+    --usa-blue-light:     #e8e8f5;
+
+    --text-dark:          #1a1a2e;
+    --text-muted:         #6b7280;
+
+    --border:             rgba(0,0,0,0.08);
+    --shadow-sm:          0 2px 8px rgba(0,0,0,0.06);
+    --shadow-md:          0 4px 20px rgba(0,0,0,0.10);
 }

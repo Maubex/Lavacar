@@ -1,6 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.urls import reverse
+from django.db.models import Sum, Count, Avg
+from django.utils import timezone
+from datetime import datetime, timedelta
+
+# Importe seus modelos corretamente
 from .models import TipoServico, CategoriaVeiculo, TabelaPreco, OrdemServico, Adicional
 from clientes.models import Cliente, Carro
 
@@ -238,3 +243,87 @@ def _carro_resumo(carro):
         'tipo':   carro.get_tipo_display() if carro.tipo else '',
         'cor':    carro.cor or '',
     }
+    
+    from django.shortcuts import render
+
+from clientes.models import Cliente
+from django.db.models import Sum, Count, Avg
+from datetime import datetime
+
+def dashboard(request):
+    # 1. Total de Carros Lavados (Unidades totais no mês/geral)
+    total_lavagens = Servico.objects.count()
+
+    # 2. Faturamento Total
+    faturamento_total = Servico.objects.aggregate(Sum('valor'))['valor__sum'] or 0
+
+    # 3. Ticket Médio (Faturamento / Total de Lavagens)
+    ticket_medio = Servico.objects.aggregate(Avg('valor'))['valor__avg'] or 0
+
+    # 4. Serviços mais Procurados (Agrupa por nome do serviço e conta)
+    # Supondo que você tenha um campo 'titulo' ou 'servico_escolhido' em Servico
+    servicos_mais_vendidos = Servico.objects.values('titulo').annotate(qtd=Count('titulo')).order_by('-qtd')[:5]
+
+    # 5. Top 5 Clientes (Quem mais gerou serviços)
+    top_clientes = Cliente.objects.filter(
+        carros__ordens__in=qs
+    ).annotate(
+        qtd_servicos=Count('carros__ordens')
+    ).order_by('-qtd_servicos')[:5]
+
+    return render(request, 'dashboard.html', {
+        'total_lavagens': total_lavagens,
+        'faturamento_total': faturamento_total,
+        'ticket_medio': ticket_medio,
+        'servicos_mais_vendidos': servicos_mais_vendidos,
+        'top_clientes': top_clientes,
+    })
+    
+    # No topo do arquivo ou antes da def dashboard, garanta que as importações estão assim:
+# from .models import TipoServico, CategoriaVeiculo, TabelaPreco, OrdemServico, Adicional
+# (Note que NÃO deve ter 'from .models import Servico')
+
+def dashboard(request):
+    data_inicio_str = request.GET.get('data_inicio')
+    data_fim_str = request.GET.get('data_fim')
+
+    if not data_inicio_str or not data_fim_str:
+        data_fim = timezone.now().date()
+        data_inicio = data_fim - timedelta(days=30)
+    else:
+        try:
+            data_inicio = datetime.strptime(data_inicio_str, '%Y-%m-%d').date()
+            data_fim = datetime.strptime(data_fim_str, '%Y-%m-%d').date()
+        except ValueError:
+            data_fim = timezone.now().date()
+            data_inicio = data_fim - timedelta(days=30)
+
+    # AQUI ESTAVA O ERRO: Mudamos de Servico para OrdemServico
+    # E o campo de filtro deve ser 'data' (conforme sua tabela servicos_ordemservico)
+    qs = OrdemServico.objects.filter(data__date__range=[data_inicio, data_fim])
+
+    total_lavagens = qs.count()
+    
+    # O campo de valor na sua OrdemServico se chama 'preco'
+    faturamento_total = qs.aggregate(Sum('preco'))['preco__sum'] or 0
+    ticket_medio = qs.aggregate(Avg('preco'))['preco__avg'] or 0
+    
+    # Busca o nome do serviço
+    servicos_mais_vendidos = qs.values('tipo_servico__nome').annotate(
+        qtd=Count('tipo_servico__nome')
+    ).order_by('-qtd')[:5]
+
+    # Top Clientes (Caminho: OrdemServico -> Carro -> Cliente)
+    top_clientes = Cliente.objects.filter(carros__ordens__in=qs).annotate(qtd_servicos=Count('carros__ordens')).order_by('-qtd_servicos')[:5]
+
+    context = {
+        'total_lavagens': total_lavagens,
+        'faturamento_total': faturamento_total,
+        'ticket_medio': ticket_medio,
+        'servicos_mais_vendidos': servicos_mais_vendidos,
+        'top_clientes': top_clientes,
+        'data_inicio': data_inicio.strftime('%Y-%m-%d'),
+        'data_fim': data_fim.strftime('%Y-%m-%d'),
+    }
+
+    return render(request, 'servicos/dashboard.html', context)

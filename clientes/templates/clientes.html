@@ -50,6 +50,11 @@
                     </div>
                 </div>
                 <br>
+                {% if erro %}
+    <div class="alert alert-danger">
+        {{ erro }}
+    </div>
+{% endif %}
 
                 <!-- Endereço -->
                 <hr style="background-color:gray;">
@@ -140,88 +145,86 @@
 
         <!-- ======================== ATUALIZAR CLIENTE ======================== -->
         <div id="att_cliente">
-            <p></p>
-            <select id="cliente-select" onchange="dados_cliente()" class="form-control select2">
-                {% for cliente in clientes %}
-                    <option value="{{cliente.id}}">{{cliente.nome}} {{cliente.sobrenome}}</option>
-                {% endfor %}
-            </select>
-            <br>
-            <hr>
+    <p></p>
+    <select id="cliente-select" onchange="dados_cliente()" class="form-control select2">
+        <option value="">Selecione um cliente...</option>
+        {% for cliente in clientes %}
+            <option value="{{cliente.id}}">{{cliente.nome}} {{cliente.sobrenome}}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <hr>
 
-            <div id="form-att-cliente">
-                <input type="hidden" id="id">
+    <div id="form-att-cliente" style="display: none;">
+        <input type="hidden" id="id">
 
-                <!-- Nome e Sobrenome -->
-                <div class="row">
-                    <div class="col-md">
-                        <p>Nome:</p>
-                        <input id="nome" type="text" class='form-control'>
-                    </div>
-                    <div class="col-md">
-                        <p>Sobrenome:</p>
-                        <input id="sobrenome" type="text" class='form-control'>
-                    </div>
-                </div>
-                <br>
-
-                <!-- Email, CPF e Telefone -->
-                <p>E-mail:</p>
-                <input id="email" type="text" class='form-control'>
-                <br>
-                <div class="row">
-                    <div class="col-md">
-                        <p>CPF:</p>
-                        <input id="cpf" type="text" class='form-control'>
-                    </div>
-                    <div class="col-md">
-                        <p>Telefone:</p>
-                        <input id="telefone" type="text" class='form-control'>
-                    </div>
-                </div>
-                <br>
-
-                <!-- Endereço -->
-                <hr style="background-color:gray;">
-                <h5>📍 Endereço</h5>
-                <div class="row">
-                    <div class="col-md-3">
-                        <p>CEP:</p>
-                        <input id="cep" type="text" class="form-control" onblur="buscar_cep('att')">
-                    </div>
-                    <div class="col-md-7">
-                        <p>Rua:</p>
-                        <input id="rua" type="text" class="form-control">
-                    </div>
-                    <div class="col-md-2">
-                        <p>Número:</p>
-                        <input id="numero" type="text" class="form-control">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <p>Bairro:</p>
-                        <input id="bairro" type="text" class="form-control">
-                    </div>
-                    <div class="col-md-5">
-                        <p>Cidade:</p>
-                        <input id="cidade" type="text" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <p>Estado:</p>
-                        <input id="estado" type="text" class="form-control" maxlength="2">
-                    </div>
-                </div>
-
-                <br>
-                <input onclick="update_cliente()" type="submit" value="Salvar" class="btn btn-success">
-
-                <!-- Carros -->
-                <hr style="background-color: gray;">
-                <h2>🚗 Carros</h2>
-                <div id="carros"></div>
+        <div class="row">
+            <div class="col-md">
+                <p>Nome:</p>
+                <input id="nome" type="text" class='form-control'>
+            </div>
+            <div class="col-md">
+                <p>Sobrenome:</p>
+                <input id="sobrenome" type="text" class='form-control'>
             </div>
         </div>
+        <br>
+
+        <p>E-mail:</p>
+        <input type="text" id="email" class="form-control" placeholder="exemplo@email.com">
+        <br>
+
+        <div class="row">
+            <div class="col-md">
+                <p>CPF:</p>
+                <input id="cpf" type="text" class='form-control cpf-mask'>
+            </div>
+            <div class="col-md">
+                <p>Telefone:</p>
+                <input id="telefone" type="text" class='form-control tel-mask'>
+            </div>
+        </div>
+        <br>
+
+        <hr style="background-color:gray;">
+        <h5>📍 Endereço</h5>
+        <div class="row">
+            <div class="col-md-3">
+                <p>CEP:</p>
+                <input id="cep" type="text" class="form-control cep-mask" onblur="buscar_cep('att')">
+            </div>
+            <div class="col-md-7">
+                <p>Rua:</p>
+                <input id="rua" type="text" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <p>Número:</p>
+                <input id="numero" type="text" class="form-control">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <p>Bairro:</p>
+                <input id="bairro" type="text" class="form-control">
+            </div>
+            <div class="col-md-5">
+                <p>Cidade:</p>
+                <input id="cidade" type="text" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <p>Estado:</p>
+                <input id="estado" type="text" class="form-control" maxlength="2">
+            </div>
+        </div>
+
+        <br>
+        <input onclick="update_cliente()" type="submit" value="Salvar Alterações" class="btn btn-success">
+
+        <hr style="background-color: gray;">
+        <h2>🚗 Carros</h2>
+        <div id="carros"></div>
+    </div>
+</div>
 
     </div>
 

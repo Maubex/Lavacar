@@ -5,9 +5,14 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ── Segurança ────────────────────────────────────
+# Adicionado um valor padrão para não dar erro em desenvolvimento local
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-jneo8fq9-_#3kddovv2^hs!%s5u_fi79%m+&5-%rujrh78up(o')
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['*']
+
+# DEBUG=True por padrão em desenvolvimento. 
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+# Permitir localhost por padrão para desenvolvimento
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')
 
 # ── Apps ─────────────────────────────────────────
 INSTALLED_APPS = [
@@ -26,7 +31,7 @@ INSTALLED_APPS = [
 # ── Middleware ────────────────────────────────────
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← serve arquivos estáticos em produção
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -40,7 +45,7 @@ ROOT_URLCONF = 'mecajato.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -56,8 +61,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mecajato.wsgi.application'
 
 # ── Banco de dados ────────────────────────────────
-# Em produção usa DATABASE_URL do Railway
-# Em desenvolvimento usa o PostgreSQL local
+# Se houver DATABASE_URL (Produção/Docker), ele usa. 
+# Se não houver, ele usa o seu PostgreSQL local (americabd).
 DATABASES = {
     'default': dj_database_url.config(
         default='postgresql://postgres:92u8v2zj@localhost:5432/americabd',
@@ -77,38 +82,25 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'pt-BR'
 TIME_ZONE     = 'America/Sao_Paulo'
 USE_I18N      = True
-USE_L10N = True
 USE_TZ        = True
 
-
-
-LANGUAGES = [
-    ('en', 'English'),
-    ('pt-BR', 'Português (Brasil)'),
-]
-
-LOCALE_PATHS = [
-    Path(BASE_DIR, 'locale'),
-]
-
 # ── Arquivos estáticos ────────────────────────────
-STATIC_URL  = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'templates/static')]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+STATIC_URL       = '/static/'
+STATIC_ROOT      = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'templates' / 'static']
+if DEBUG:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+else:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # ── Mídia ─────────────────────────────────────────
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL  = '/media/'
 
 # ── Chave primária padrão ─────────────────────────
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
-
-# Permite que o Django aceite o endereço do Railway
+# ── CSRF ─────────────────────────────────────────
 CSRF_TRUSTED_ORIGINS = [
     'https://lavacar-production.up.railway.app',
-    'https://*.railway.app'
+    'https://*.railway.app',
 ]
