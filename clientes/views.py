@@ -2,19 +2,19 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.core import serializers
+from django.contrib.auth.decorators import login_required
 from .models import Cliente, Carro
 import re
 import json
 
 
-# ── Utilitários ───────────────────────────────────────────────────────────────
+# ── Utilitários ───────────────────────────────────
 
 def email_valido(email):
     return re.fullmatch(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+', email)
 
 
 def render_erro(request, clientes_list, erro, campos={}):
-    """Retorna o template de clientes com a mensagem de erro e campos preenchidos."""
     return render(request, 'clientes.html', {
         'clientes': clientes_list,
         'erro': erro,
@@ -22,8 +22,9 @@ def render_erro(request, clientes_list, erro, campos={}):
     })
 
 
-# ── Views ─────────────────────────────────────────────────────────────────────
+# ── Views ─────────────────────────────────────────
 
+@login_required(login_url='login')
 def clientes(request):
     clientes_list = Cliente.objects.all()
 
@@ -33,29 +34,23 @@ def clientes(request):
     if request.method != 'POST':
         return HttpResponse(status=405)
 
-    # Dados pessoais
     nome      = request.POST.get('nome', '').strip()
     sobrenome = request.POST.get('sobrenome', '').strip()
     email     = request.POST.get('email', '').strip()
     cpf       = request.POST.get('cpf', '').strip()
     telefone  = request.POST.get('telefone', '').strip()
+    cep       = request.POST.get('cep', '').strip()
+    rua       = request.POST.get('rua', '').strip()
+    numero    = request.POST.get('numero', '').strip()
+    bairro    = request.POST.get('bairro', '').strip()
+    cidade    = request.POST.get('cidade', '').strip()
+    estado    = request.POST.get('estado', '').strip()
+    carros    = request.POST.getlist('carro')
+    placas    = request.POST.getlist('placa')
+    anos      = request.POST.getlist('ano')
+    tipos     = request.POST.getlist('tipo')
+    cores     = request.POST.getlist('cor')
 
-    # Endereço
-    cep    = request.POST.get('cep', '').strip()
-    rua    = request.POST.get('rua', '').strip()
-    numero = request.POST.get('numero', '').strip()
-    bairro = request.POST.get('bairro', '').strip()
-    cidade = request.POST.get('cidade', '').strip()
-    estado = request.POST.get('estado', '').strip()
-
-    # Carros
-    carros = request.POST.getlist('carro')
-    placas = request.POST.getlist('placa')
-    anos   = request.POST.getlist('ano')
-    tipos  = request.POST.getlist('tipo')
-    cores  = request.POST.getlist('cor')
-
-    # Campos para repopular o formulário em caso de erro
     campos = {
         'nome': nome, 'sobrenome': sobrenome, 'email': email,
         'cpf': cpf, 'telefone': telefone,
@@ -63,35 +58,24 @@ def clientes(request):
         'bairro': bairro, 'cidade': cidade, 'estado': estado,
     }
 
-    # ── Validações de campos obrigatórios ──
     if not nome or not sobrenome:
         return render_erro(request, clientes_list, 'Nome e sobrenome são obrigatórios.', campos)
-
     if not cpf:
         return render_erro(request, clientes_list, 'CPF é obrigatório.', campos)
-
     if not email:
         return render_erro(request, clientes_list, 'E-mail é obrigatório.', campos)
-
-    # ── Validação de formato de e-mail ──
     if not email_valido(email):
         return render_erro(request, clientes_list, 'E-mail inválido.', campos)
-
-    # ── Validações de duplicidade ──
     if Cliente.objects.filter(cpf=cpf).exists():
         return render_erro(request, clientes_list, 'Este CPF já está cadastrado.', campos)
-
     if telefone and Cliente.objects.filter(telefone=telefone).exists():
         return render_erro(request, clientes_list, 'Este telefone já está cadastrado.', campos)
-
     if email and Cliente.objects.filter(email=email).exists():
         return render_erro(request, clientes_list, 'Este e-mail já está cadastrado.', campos)
-
     for placa in placas:
         if placa and Carro.objects.filter(placa=placa).exists():
             return render_erro(request, clientes_list, f'A placa {placa} já está cadastrada.', campos)
 
-    # ── Salvamento ──
     cliente = Cliente.objects.create(
         nome=nome, sobrenome=sobrenome, email=email,
         cpf=cpf, telefone=telefone,
@@ -110,6 +94,7 @@ def clientes(request):
     return redirect(reverse('clientes'))
 
 
+@login_required(login_url='login')
 def att_cliente(request):
     if request.method != 'POST':
         return HttpResponse(status=405)
@@ -133,6 +118,7 @@ def att_cliente(request):
     return JsonResponse(data)
 
 
+@login_required(login_url='login')
 def excluir_carro(request, id):
     if request.method != 'POST':
         return HttpResponse(status=405)
@@ -144,6 +130,7 @@ def excluir_carro(request, id):
     return redirect(reverse('clientes') + f'?aba=att_cliente&id_cliente={id_cliente}')
 
 
+@login_required(login_url='login')
 def update_carro(request, id):
     if request.method != 'POST':
         return HttpResponse(status=405)
@@ -172,6 +159,7 @@ def update_carro(request, id):
     return HttpResponse(id)
 
 
+@login_required(login_url='login')
 def update_cliente(request, id):
     if request.method != 'POST':
         return JsonResponse({'status': '405', 'erro': 'Método não permitido.'}, status=405)
@@ -187,17 +175,12 @@ def update_cliente(request, id):
     novo_cpf   = body.get('cpf', '').strip()
     novo_tel   = body.get('telefone', '').strip()
 
-    # ── Validação de formato de e-mail ──
     if novo_email and not email_valido(novo_email):
         return JsonResponse({'status': '400', 'erro': 'E-mail inválido.'}, status=400)
-
-    # ── Validações de duplicidade ──
     if novo_cpf and Cliente.objects.exclude(id=id).filter(cpf=novo_cpf).exists():
         return JsonResponse({'status': '400', 'erro': 'Este CPF já pertence a outro cliente.'}, status=400)
-
     if novo_tel and Cliente.objects.exclude(id=id).filter(telefone=novo_tel).exists():
         return JsonResponse({'status': '400', 'erro': 'Este telefone já pertence a outro cliente.'}, status=400)
-
     if novo_email and Cliente.objects.exclude(id=id).filter(email=novo_email).exists():
         return JsonResponse({'status': '400', 'erro': 'Este e-mail já pertence a outro cliente.'}, status=400)
 
@@ -213,11 +196,9 @@ def update_cliente(request, id):
         cliente.bairro    = body.get('bairro', cliente.bairro)
         cliente.cidade    = body.get('cidade', cliente.cidade)
         cliente.estado    = body.get('estado', cliente.estado)
-
         cliente.save()
         return JsonResponse({'status': '200'}, status=200)
 
     except Exception as e:
-        # Log interno — não expõe detalhes ao cliente
         print(f'[update_cliente] Erro inesperado: {e}')
         return JsonResponse({'status': '500', 'erro': 'Erro interno ao salvar.'}, status=500)

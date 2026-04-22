@@ -3,9 +3,9 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.db.models import Sum, Count, Avg
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 
-# Importe seus modelos corretamente
 from .models import TipoServico, CategoriaVeiculo, TabelaPreco, OrdemServico, Adicional
 from clientes.models import Cliente, Carro
 
@@ -29,14 +29,81 @@ def get_categoria_por_carro(carro):
     return CategoriaVeiculo.objects.filter(nome=nome).first()
 
 
+def tem_perfil(user, *perfis):
+    """Verifica se o usuário tem um dos perfis informados."""
+    if user.is_superuser:
+        return True
+    return user.groups.filter(name__in=perfis).exists()
+
+
+# ══════════════════════════════════════════════════
+# DASHBOARD — apenas gerente e admin
+# ══════════════════════════════════════════════════
+
+@login_required(login_url='login')
+def dashboard(request):
+    # Funcionário não tem acesso ao dashboard
+    if not tem_perfil(request.user, 'gerente', 'admin'):
+        return redirect('servicos_home')
+
+    data_inicio_str = request.GET.get('data_inicio')
+    data_fim_str    = request.GET.get('data_fim')
+
+    if not data_inicio_str or not data_fim_str:
+        data_fim    = timezone.now().date()
+        data_inicio = data_fim - timedelta(days=30)
+    else:
+        try:
+            data_inicio = datetime.strptime(data_inicio_str, '%Y-%m-%d').date()
+            data_fim    = datetime.strptime(data_fim_str,    '%Y-%m-%d').date()
+        except ValueError:
+            data_fim    = timezone.now().date()
+            data_inicio = data_fim - timedelta(days=30)
+
+    qs = OrdemServico.objects.filter(data__date__range=[data_inicio, data_fim])
+
+    total_lavagens    = qs.count()
+    faturamento_total = qs.aggregate(Sum('preco'))['preco__sum'] or 0
+    ticket_medio      = qs.aggregate(Avg('preco'))['preco__avg'] or 0
+
+    servicos_mais_vendidos = qs.values('tipo_servico__nome').annotate(
+        qtd=Count('tipo_servico__nome')
+    ).order_by('-qtd')[:5]
+
+    top_clientes = Cliente.objects.filter(
+        carros__ordens__in=qs
+    ).annotate(
+        qtd_servicos=Count('carros__ordens')
+    ).order_by('-qtd_servicos')[:5]
+
+    hoje     = timezone.now().date()
+    qs_hoje  = OrdemServico.objects.filter(data__date=hoje)
+    os_hoje  = qs_hoje.count()
+    fat_hoje = qs_hoje.aggregate(Sum('preco'))['preco__sum'] or 0
+
+    return render(request, 'servicos/dashboard.html', {
+        'total_lavagens':         total_lavagens,
+        'faturamento_total':      faturamento_total,
+        'ticket_medio':           ticket_medio,
+        'servicos_mais_vendidos': servicos_mais_vendidos,
+        'top_clientes':           top_clientes,
+        'data_inicio':            data_inicio.strftime('%Y-%m-%d'),
+        'data_fim':               data_fim.strftime('%Y-%m-%d'),
+        'os_hoje':                os_hoje,
+        'fat_hoje':               fat_hoje,
+    })
+
+
 # ══════════════════════════════════════════════════
 # BUSCA — tela principal de atendimento
 # ══════════════════════════════════════════════════
 
+@login_required(login_url='login')
 def servicos_home(request):
     return render(request, 'servicos/servicos.html')
 
 
+@login_required(login_url='login')
 def servicos_buscar(request):
     if request.method != 'POST':
         return JsonResponse({'status': '404'})
@@ -45,12 +112,10 @@ def servicos_buscar(request):
     if not query:
         return JsonResponse({'status': '404'})
 
-    # Busca por placa
     carro = Carro.objects.filter(placa__iexact=query).first()
     if carro:
         return JsonResponse({'status': '200', 'tipo': 'placa', 'carro': _carro_json(carro)})
 
-    # Busca por ID ou CPF do cliente
     cliente = None
     if query.isdigit():
         cliente = Cliente.objects.filter(id=query).first()
@@ -69,15 +134,17 @@ def servicos_buscar(request):
     return JsonResponse({'status': '404', 'query': query})
 
 
+@login_required(login_url='login')
 def servicos_carro_json(request, carro_pk):
     carro = get_object_or_404(Carro, pk=carro_pk)
     return JsonResponse({'status': '200', 'carro': _carro_json(carro)})
 
 
 # ══════════════════════════════════════════════════
-# CADASTRO RÁPIDO — carro não encontrado
+# CADASTRO RÁPIDO
 # ══════════════════════════════════════════════════
 
+@login_required(login_url='login')
 def servicos_cadastrar_carro(request):
     placa    = request.GET.get('placa', '').upper()
     clientes = Cliente.objects.all().order_by('nome')
@@ -106,12 +173,8 @@ def servicos_cadastrar_carro(request):
             })
 
         Carro.objects.create(
-            carro   = modelo,
-            placa   = placa,
-            tipo    = tipo,
-            cor     = cor,
-            ano     = ano if ano else None,
-            cliente = cliente,
+            carro=modelo, placa=placa, tipo=tipo,
+            cor=cor, ano=ano if ano else None, cliente=cliente,
         )
 
         return redirect(reverse('servicos_home') + f'?placa={placa}')
@@ -123,9 +186,10 @@ def servicos_cadastrar_carro(request):
 
 
 # ══════════════════════════════════════════════════
-# BUSCAR PREÇO — endpoint AJAX
+# BUSCAR PREÇO
 # ══════════════════════════════════════════════════
 
+@login_required(login_url='login')
 def buscar_preco(request):
     carro_id   = request.GET.get('carro_id')
     servico_id = request.GET.get('servico_id')
@@ -152,12 +216,12 @@ def buscar_preco(request):
 # NOVA ORDEM DE SERVIÇO
 # ══════════════════════════════════════════════════
 
+@login_required(login_url='login')
 def nova_ordem(request, carro_pk):
     carro      = get_object_or_404(Carro, pk=carro_pk)
     categoria  = get_categoria_por_carro(carro)
     adicionais = Adicional.objects.filter(ativo=True)
 
-    # Monta lista de serviços já com o preço correto para o tipo do carro
     servicos_com_preco = []
     for s in TipoServico.objects.filter(ativo=True):
         preco = None
@@ -170,8 +234,6 @@ def nova_ordem(request, carro_pk):
                 preco = tabela.preco
             except TabelaPreco.DoesNotExist:
                 preco = None
-
-        # Cria objeto com atributos acessíveis no template
         s.preco = preco
         servicos_com_preco.append(s)
 
@@ -183,16 +245,12 @@ def nova_ordem(request, carro_pk):
 
         servico = get_object_or_404(TipoServico, pk=servico_id)
 
-        # Cria a OS
         ordem = OrdemServico.objects.create(
-            carro        = carro,
-            tipo_servico = servico,
-            preco        = preco_total,
-            observacao   = observacao,
-            status       = 'aguardando',
+            carro=carro, tipo_servico=servico,
+            preco=preco_total, observacao=observacao,
+            status='aguardando',
         )
 
-        # Vincula adicionais
         if adicionais_ids:
             adicionais_objs = Adicional.objects.filter(pk__in=adicionais_ids)
             ordem.adicionais.set(adicionais_objs)
@@ -215,12 +273,12 @@ def _carro_json(carro):
     historico = []
     for os in carro.ordens.select_related('tipo_servico').all():
         historico.append({
-            'tipo':      'OS',
-            'descricao': os.tipo_servico.nome,
-            'valor':     str(os.preco),
-            'data':      os.data.strftime('%d/%m/%Y %H:%M'),
+            'tipo':       'OS',
+            'descricao':  os.tipo_servico.nome,
+            'valor':      str(os.preco),
+            'data':       os.data.strftime('%d/%m/%Y %H:%M'),
             'observacao': os.observacao or '',
-            'status':    os.get_status_display(),
+            'status':     os.get_status_display(),
         })
 
     return {
@@ -243,87 +301,3 @@ def _carro_resumo(carro):
         'tipo':   carro.get_tipo_display() if carro.tipo else '',
         'cor':    carro.cor or '',
     }
-    
-    from django.shortcuts import render
-
-from clientes.models import Cliente
-from django.db.models import Sum, Count, Avg
-from datetime import datetime
-
-def dashboard(request):
-    # 1. Total de Carros Lavados (Unidades totais no mês/geral)
-    total_lavagens = Servico.objects.count()
-
-    # 2. Faturamento Total
-    faturamento_total = Servico.objects.aggregate(Sum('valor'))['valor__sum'] or 0
-
-    # 3. Ticket Médio (Faturamento / Total de Lavagens)
-    ticket_medio = Servico.objects.aggregate(Avg('valor'))['valor__avg'] or 0
-
-    # 4. Serviços mais Procurados (Agrupa por nome do serviço e conta)
-    # Supondo que você tenha um campo 'titulo' ou 'servico_escolhido' em Servico
-    servicos_mais_vendidos = Servico.objects.values('titulo').annotate(qtd=Count('titulo')).order_by('-qtd')[:5]
-
-    # 5. Top 5 Clientes (Quem mais gerou serviços)
-    top_clientes = Cliente.objects.filter(
-        carros__ordens__in=qs
-    ).annotate(
-        qtd_servicos=Count('carros__ordens')
-    ).order_by('-qtd_servicos')[:5]
-
-    return render(request, 'dashboard.html', {
-        'total_lavagens': total_lavagens,
-        'faturamento_total': faturamento_total,
-        'ticket_medio': ticket_medio,
-        'servicos_mais_vendidos': servicos_mais_vendidos,
-        'top_clientes': top_clientes,
-    })
-    
-    # No topo do arquivo ou antes da def dashboard, garanta que as importações estão assim:
-# from .models import TipoServico, CategoriaVeiculo, TabelaPreco, OrdemServico, Adicional
-# (Note que NÃO deve ter 'from .models import Servico')
-
-def dashboard(request):
-    data_inicio_str = request.GET.get('data_inicio')
-    data_fim_str = request.GET.get('data_fim')
-
-    if not data_inicio_str or not data_fim_str:
-        data_fim = timezone.now().date()
-        data_inicio = data_fim - timedelta(days=30)
-    else:
-        try:
-            data_inicio = datetime.strptime(data_inicio_str, '%Y-%m-%d').date()
-            data_fim = datetime.strptime(data_fim_str, '%Y-%m-%d').date()
-        except ValueError:
-            data_fim = timezone.now().date()
-            data_inicio = data_fim - timedelta(days=30)
-
-    # AQUI ESTAVA O ERRO: Mudamos de Servico para OrdemServico
-    # E o campo de filtro deve ser 'data' (conforme sua tabela servicos_ordemservico)
-    qs = OrdemServico.objects.filter(data__date__range=[data_inicio, data_fim])
-
-    total_lavagens = qs.count()
-    
-    # O campo de valor na sua OrdemServico se chama 'preco'
-    faturamento_total = qs.aggregate(Sum('preco'))['preco__sum'] or 0
-    ticket_medio = qs.aggregate(Avg('preco'))['preco__avg'] or 0
-    
-    # Busca o nome do serviço
-    servicos_mais_vendidos = qs.values('tipo_servico__nome').annotate(
-        qtd=Count('tipo_servico__nome')
-    ).order_by('-qtd')[:5]
-
-    # Top Clientes (Caminho: OrdemServico -> Carro -> Cliente)
-    top_clientes = Cliente.objects.filter(carros__ordens__in=qs).annotate(qtd_servicos=Count('carros__ordens')).order_by('-qtd_servicos')[:5]
-
-    context = {
-        'total_lavagens': total_lavagens,
-        'faturamento_total': faturamento_total,
-        'ticket_medio': ticket_medio,
-        'servicos_mais_vendidos': servicos_mais_vendidos,
-        'top_clientes': top_clientes,
-        'data_inicio': data_inicio.strftime('%Y-%m-%d'),
-        'data_fim': data_fim.strftime('%Y-%m-%d'),
-    }
-
-    return render(request, 'servicos/dashboard.html', context)

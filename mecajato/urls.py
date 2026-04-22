@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
+from django.contrib.auth import views as auth_views
 from servicos import views as servicos_views
 
 urlpatterns = [
@@ -8,5 +9,10 @@ urlpatterns = [
     path('clientes/', include('clientes.urls')),
     path('servicos/', include('servicos.urls')),
     path('dashboard/', servicos_views.dashboard, name='dashboard'),
+
+    # ── Login / Logout ────────────────────────────
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+
     path('', lambda request: redirect('dashboard')),
 ]

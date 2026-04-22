@@ -104,3 +104,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://lavacar-production.up.railway.app',
     'https://*.railway.app',
 ]
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/login/'
