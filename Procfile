@@ -1,4 +1,1 @@
-release: python manage.py migrate --noinput && python criar_usuario.py
-web: gunicorn mecajato.wsgi
-
-
+web: python manage.py createsuperuser --username admin --email admin@lavacar.com --noinput && gunicorn mecajato.wsgi --log-file -
