@@ -1,1 +1,1 @@
-web: python manage.py createsuperuser --username admin --email admin@lavacar.com --noinput && gunicorn mecajato.wsgi --log-file -
+web: gunicorn mecajato.wsgi --log-file -
